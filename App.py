@@ -1,6 +1,8 @@
 from tkinter import *
 import random
 import pyautogui as pyag
+import re
+import time
 
 
 class App(Frame):
@@ -19,6 +21,7 @@ class App(Frame):
         self.tickboxes()
         self.pwlen()
         self.seednprocess()
+        self.passgen()
 
 # GUI TEXT
     def showtext(self):
@@ -75,12 +78,11 @@ class App(Frame):
 
 # seed generator and process bar
     def seednprocess(self):
-        generate = Button(self, text="Generate", command=self.generator)
+        generate = Button(self, text="Generate\n Seed", command=self.seed)
         generate.pack()
         generate.place(x=140, y=330)
 
-
-    def generator(self):
+    def seed(self):
         seedbase = []
         lastcoord = list()
         while len(seedbase) <= 500:
@@ -88,10 +90,25 @@ class App(Frame):
             if [pos] == lastcoord[-1::1]:
                 continue
             else:
+                lastcoord = list()
                 lastcoord.append(list(pyag.position()))
                 seedbase.append(list(pyag.position()))
+                time.sleep(0.2)
+        seedstr = str(seedbase)
+        seedstr = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
+        return self.passgen(seedstr)
+
+# seed calculations and pass generation
+    def passgen(self, seedstr):
+        generate = Button(self, text="Generate\n Password")
+        generate.pack()
+        generate.place(x=280, y=330)
+
+# Seed generator
 
 
+
+# Password generator
 
 
 
