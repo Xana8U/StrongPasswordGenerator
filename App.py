@@ -4,6 +4,7 @@ import random
 import pyautogui as pyag
 import re
 import time
+import _thread
 
 # global generation progress
 prog = 0
@@ -12,6 +13,10 @@ seed = ""
 class App(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
+        # Initialize progress bar
+        self.progress = ttk.Progressbar(orient=HORIZONTAL, length=300, mode="determinate", maximum=500)
+        self.progress.pack()
+        self.progress.place(x=100, y=350)
 
         self.master = master
 
@@ -26,8 +31,8 @@ class App(Frame):
         self.tickboxes()
         self.pwlen()
         self.seedbuttn()
-        self.progressbar()
         self.passbutt()
+
 
 # GUI TEXT
     def showtext(self):
@@ -50,26 +55,65 @@ class App(Frame):
         seedtext.pack()
         seedtext.place(x=3, y=200)
 
-# Selections for lower, upper, digits, specials, underlines, spaces
+# place checkboxes around
     def tickboxes(self):
-        lower = Checkbutton(self, text="Lowecase (a-z)")
-        lower.pack()
-        lower.place(x=20, y=140)
-        uppercase = Checkbutton(self, text="Uppercase (A-Z)")
-        uppercase.pack()
-        uppercase.place(x=180, y=140)
-        digits = Checkbutton(self, text="Digits (0-9)")
-        digits.pack()
-        digits.place(x=340, y=140)
-        lower = Checkbutton(self, text="Specials (€$%!?..)")
-        lower.pack()
-        lower.place(x=20, y=165)
-        uppercase = Checkbutton(self, text="Underlines (_)")
-        uppercase.pack()
-        uppercase.place(x=180, y=165)
-        digits = Checkbutton(self, text="Spaces ( )")
-        digits.pack()
-        digits.place(x=340, y=165)
+        # Initialize checkboxes
+        self.lowercase = Checkbutton(self, text="Lowercase (a-z)", command=self.lowercase)
+        self.uppercase = Checkbutton(self, text="Uppercase (A-Z)", command=self.uppercase)
+        self.digits = Checkbutton(self, text="Digits (0-9)", command=self.digits)
+        self.special = Checkbutton(self, text="Specials (€$%!?..)", command=self.special)
+        self.underline = Checkbutton(self, text="Underlines (_)", command=self.underline)
+        self.space = Checkbutton(self, text="Spaces ( )", command=self.space)
+        self.lowercase.pack()
+        self.lowercase.place(x=20, y=140)
+        self.uppercase.pack()
+        self.uppercase.place(x=180, y=140)
+        self.digits.pack()
+        self.digits.place(x=340, y=140)
+        self.special.pack()
+        self.special.place(x=20, y=165)
+        self.underline.pack()
+        self.underline.place(x=180, y=165)
+        self.space.pack()
+        self.space.place(x=340, y=165)
+
+    # Get correct tick box off values
+    def lowercase(self):
+        if self.lowercase["offvalue"] == 1:
+            self.lowercase["offvalue"] = 0
+        else:
+            self.lowercase["offvalue"] = 1
+
+    def uppercase(self):
+        if self.uppercase["offvalue"] == 1:
+            self.uppercase["offvalue"] = 0
+        else:
+            self.uppercase["offvalue"] = 1
+
+    def digits(self):
+        if self.digits["offvalue"] == 1:
+            self.digits["offvalue"] = 0
+        else:
+            self.digits["offvalue"] = 1
+
+    def special(self):
+        if self.special["offvalue"] == 1:
+            self.special["offvalue"] = 0
+        else:
+            self.special["offvalue"] = 1
+
+    def underline(self):
+        if self.underline["offvalue"] == 1:
+            self.underline["offvalue"] = 0
+        else:
+            self.underline["offvalue"] = 1
+
+    def space(self):
+        if self.space["offvalue"] == 1:
+            self.space["offvalue"] = 0
+        else:
+            self.space["offvalue"] = 1
+
 
 # Length selector
     def pwlen(self):
@@ -82,18 +126,15 @@ class App(Frame):
         dropdown.pack()
         dropdown.place(x=157, y=95)
 
-# seed generator and process, buttons/meter
+# seed generator button and allocating a new thread for the seed generation.
     def seedbuttn(self):
         global prog
-        generate = Button(self, text="Generate\n Seed", command=self.seed)
+        def startseed():
+            _thread.start_new(self.seed, tuple())
+        generate = Button(self, text="Generate\n Seed", command=startseed)
         generate.pack()
         generate.place(x=140, y=400)
-
-    def progressbar(self):
-        global prog
-        progress = ttk.Progressbar(self, orient=HORIZONTAL, length=300, mode="determinate", maximum=500, value=prog)
-        progress.pack()
-        progress.place(x=100, y=350)
+# progress ba
 
 # seed generator
     def seed(self):
@@ -110,10 +151,13 @@ class App(Frame):
                 seedbase.append(list(pyag.position()))
                 print(seedbase)
                 print(len(seedbase))
+                self.progress["value"] = prog
                 time.sleep(0.02)
                 prog += 1
         seedstr = str(seedbase)
         seed = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
+        print(self.lower["offvalue"], self.uppercase["offvalue"], self.digits["offvalue"], self.special["offvalue"],
+              self.underline["offvalue"], self.space["offvalue"])
         print(seed)
         self.passbutt()
 
