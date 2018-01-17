@@ -7,6 +7,7 @@ import time
 
 # global generation progress
 prog = 0
+seed = ""
 
 class App(Frame):
     def __init__(self, master=None):
@@ -24,8 +25,9 @@ class App(Frame):
         self.showtext()
         self.tickboxes()
         self.pwlen()
-        self.seednprocess()
-        self.passgen(seedstr=self.passgen)
+        self.seedbuttn()
+        self.progressbar()
+        self.passbutt()
 
 # GUI TEXT
     def showtext(self):
@@ -80,21 +82,24 @@ class App(Frame):
         dropdown.pack()
         dropdown.place(x=157, y=95)
 
-# seed generator and process bar
-    def seednprocess(self):
+# seed generator and process, buttons/meter
+    def seedbuttn(self):
         global prog
         generate = Button(self, text="Generate\n Seed", command=self.seed)
         generate.pack()
         generate.place(x=140, y=400)
-        progress = ttk.Progressbar(orient=HORIZONTAL, length=300, mode="determinate", variable=prog)
+
+    def progressbar(self):
+        global prog
+        progress = ttk.Progressbar(self, orient=HORIZONTAL, length=300, mode="determinate", maximum=500, value=prog)
         progress.pack()
         progress.place(x=100, y=350)
 
-
+# seed generator
     def seed(self):
         seedbase = []
         lastcoord = list()
-        global prog
+        global prog, seed
         while len(seedbase) < 500:
             pos = list(pyag.position())
             if [pos] == lastcoord[-1::1]:
@@ -105,27 +110,25 @@ class App(Frame):
                 seedbase.append(list(pyag.position()))
                 print(seedbase)
                 print(len(seedbase))
+                time.sleep(0.02)
                 prog += 1
         seedstr = str(seedbase)
-        seedstr = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
-        print(seedstr)
-        return self.passgen(seedstr)
+        seed = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
+        print(seed)
+        self.passbutt()
 
 # seed calculations and pass generation
-    def passgen(self, seedstr):
+    def passbutt(self):
         global prog
-        generate = Button(self, text="Generate\n Password", state='disabled')
+        generate = Button(self, text="Generate\n Password", state='disabled', command=self.password)
         generate.pack()
         generate.place(x=280, y=400)
         if prog >= 499:
             generate.config(state='normal')
 
-# Seed generator
-
-
-
-# Password generator
-
+    def password(self):
+        global seed
+        random.seed(seed)
 
 
 base = Tk()
