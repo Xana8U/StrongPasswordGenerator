@@ -1,9 +1,12 @@
 from tkinter import *
+from tkinter import ttk
 import random
 import pyautogui as pyag
 import re
 import time
 
+# global generation progress
+prog = 0
 
 class App(Frame):
     def __init__(self, master=None):
@@ -14,6 +17,7 @@ class App(Frame):
         self.run_window()
 
     def run_window(self):
+        global prog
         self.master.title("Password Generator")
         self.pack(fill=BOTH, expand=1)
 
@@ -21,7 +25,7 @@ class App(Frame):
         self.tickboxes()
         self.pwlen()
         self.seednprocess()
-        self.passgen()
+        self.passgen(seedstr=self.passgen)
 
 # GUI TEXT
     def showtext(self):
@@ -42,7 +46,7 @@ class App(Frame):
         seedtext = Label(self, text="After pressing generate, move your mouse randomly around your screen.\n"
                                     "Seed for the password will be ready after the process meter is full!")
         seedtext.pack()
-        seedtext.place(x=3, y=250)
+        seedtext.place(x=3, y=200)
 
 # Selections for lower, upper, digits, specials, underlines, spaces
     def tickboxes(self):
@@ -78,14 +82,20 @@ class App(Frame):
 
 # seed generator and process bar
     def seednprocess(self):
+        global prog
         generate = Button(self, text="Generate\n Seed", command=self.seed)
         generate.pack()
-        generate.place(x=140, y=330)
+        generate.place(x=140, y=400)
+        progress = ttk.Progressbar(orient=HORIZONTAL, length=300, mode="determinate", variable=prog)
+        progress.pack()
+        progress.place(x=100, y=350)
+
 
     def seed(self):
         seedbase = []
         lastcoord = list()
-        while len(seedbase) <= 500:
+        global prog
+        while len(seedbase) < 500:
             pos = list(pyag.position())
             if [pos] == lastcoord[-1::1]:
                 continue
@@ -93,16 +103,21 @@ class App(Frame):
                 lastcoord = list()
                 lastcoord.append(list(pyag.position()))
                 seedbase.append(list(pyag.position()))
-                time.sleep(0.2)
+                print(seedbase)
+                print(len(seedbase))
+                prog += 1
         seedstr = str(seedbase)
         seedstr = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
         return self.passgen(seedstr)
 
 # seed calculations and pass generation
     def passgen(self, seedstr):
-        generate = Button(self, text="Generate\n Password")
+        global prog
+        generate = Button(self, text="Generate\n Password", state='disabled')
         generate.pack()
-        generate.place(x=280, y=330)
+        generate.place(x=280, y=400)
+        if prog >= 499:
+            generate.config(state='normal')
 
 # Seed generator
 
