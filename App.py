@@ -108,6 +108,7 @@ class App(Frame):
                 prog += 1
         seedstr = str(seedbase)
         seedstr = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
+        print(seedstr)
         return self.passgen(seedstr)
 
 # seed calculations and pass generation
