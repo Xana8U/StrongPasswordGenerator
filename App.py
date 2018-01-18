@@ -157,15 +157,11 @@ class App(Frame):
                 lastcoord = list()
                 lastcoord.append(list(pyag.position()))
                 seedbase.append(list(pyag.position()))
-                print(seedbase)
-                print(len(seedbase))
                 self.progress["value"] = prog
                 time.sleep(0.02)
                 prog += 1
         seedstr = str(seedbase)
         seed = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
-        print(self.uppercase["offvalue"])
-        print(seed)
         self.passbutt()
 
 # seed calculations and pass generation
@@ -180,7 +176,7 @@ class App(Frame):
     def password(self):
         global seed
         random.seed(seed)
-        # lower, upper, digit, special, underline, space, length:
+        # lower, aupper, digit, special, underline, space, length:
         lower = self.lowercase["offvalue"]
         upper = self.uppercase["offvalue"]
         digit = self.digits["offvalue"]

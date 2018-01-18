@@ -1,5 +1,5 @@
 # StrongPasswordGenerator
-Status: Development  
+Status: Production
 author: markus kaleton  
 email: markus.kaleton@gmail.com  
 
