@@ -5,6 +5,7 @@ import pyautogui as pyag
 import re
 import time
 import _thread
+import string
 
 # global generation progress
 prog = 0
@@ -17,6 +18,13 @@ class App(Frame):
         self.progress = ttk.Progressbar(orient=HORIZONTAL, length=300, mode="determinate", maximum=500)
         self.progress.pack()
         self.progress.place(x=100, y=350)
+
+        self.textbox = Text()
+        self.textbox.pack()
+        self.textbox.place(x=100, y=270, width=300, height=50)
+        self.textbox.insert(END, "-[Password will appear here]-")
+        self.textbox.config(state=DISABLED)
+
 
         self.master = master
 
@@ -120,11 +128,11 @@ class App(Frame):
         length = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
                   22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
 
-        _variable = IntVar(self)
-        _variable.set(length[0])
-        dropdown = OptionMenu(self, _variable, *length)
-        dropdown.pack()
-        dropdown.place(x=157, y=95)
+        self._variable = IntVar(self)
+        self._variable.set(length[0])
+        self.dropdown = OptionMenu(self, self._variable, *length)
+        self.dropdown.pack()
+        self.dropdown.place(x=157, y=95)
 
 # seed generator button and allocating a new thread for the seed generation.
     def seedbuttn(self):
@@ -156,8 +164,7 @@ class App(Frame):
                 prog += 1
         seedstr = str(seedbase)
         seed = re.sub('[\(\)\[\]\,\ ]', '', seedstr)
-        print(self.lower["offvalue"], self.uppercase["offvalue"], self.digits["offvalue"], self.special["offvalue"],
-              self.underline["offvalue"], self.space["offvalue"])
+        print(self.uppercase["offvalue"])
         print(seed)
         self.passbutt()
 
@@ -167,12 +174,65 @@ class App(Frame):
         generate = Button(self, text="Generate\n Password", state='disabled', command=self.password)
         generate.pack()
         generate.place(x=280, y=400)
-        if prog >= 499:
+        if prog >= 500:
             generate.config(state='normal')
 
     def password(self):
         global seed
         random.seed(seed)
+        # lower, upper, digit, special, underline, space, length:
+        lower = self.lowercase["offvalue"]
+        upper = self.uppercase["offvalue"]
+        digit = self.digits["offvalue"]
+        special = self.special["offvalue"]
+        underline = self.underline["offvalue"]
+        space = self.space["offvalue"]
+        length = self._variable.get()
+
+        # characters
+        low = string.ascii_lowercase
+        up = string.ascii_uppercase
+        dig = string.digits
+        spec = """!@#$€&´`¨^',.-|<>{}[]()"""
+        under = "_"
+        spac = " "
+
+        #selections and password bank
+        loopnum = 0
+        selections = ""
+        password = ""
+        # Check all "tickbox" selections.
+        for n in lower, upper, digit, special, underline, space:
+            if loopnum == 0 and type(n) == int:  # if value is not set it will be "0" and set will be 1 (str/int)
+                selections += low
+                loopnum += 1
+            elif loopnum == 1 and type(n) == int:
+                selections += up
+                loopnum += 1
+            elif loopnum == 2 and type(n) == int:
+                selections += dig
+                loopnum += 1
+            elif loopnum == 3 and type(n) == int:
+                selections += spec
+                loopnum += 1
+            elif loopnum == 4 and type(n) == int:
+                selections += under
+                loopnum += 1
+            elif loopnum == 5 and type(n) == int:
+                selections += spac
+            else:
+                loopnum += 1
+
+        # generate random password with selected properties and length
+        for n in range(length):
+            password += random.choice(selections)
+
+        # Give user the password
+        self.textbox.config(state=NORMAL)
+        self.textbox.delete(1.0, END)
+        self.textbox.insert(END, password)
+        self.textbox.config(state=DISABLED)
+
 
 
 base = Tk()
